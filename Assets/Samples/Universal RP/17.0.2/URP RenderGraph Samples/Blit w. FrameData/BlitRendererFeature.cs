@@ -5,6 +5,10 @@ using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+enum MyProfile
+{
+    BlitRendererFeature
+}
 // Example of how Blit operatrions can be handled using frameData using multiple ScriptaleRenderPasses.
 public class BlitRendererFeature : ScriptableRendererFeature
 {
@@ -34,8 +38,8 @@ public class BlitRendererFeature : ScriptableRendererFeature
             // Checks if the texture name is valid and puts in default value if not.
             var texName = String.IsNullOrEmpty(textureName) ? "_BlitTextureData" : textureName;
             // Reallocate if the RTHandles are being initialized for the first time or if the targetDescriptor has changed since last frame.
-            RenderingUtils.ReAllocateIfNeeded(ref m_TextureFront, targetDescriptor, FilterMode.Bilinear, TextureWrapMode.Clamp, name: texName + "Front");
-            RenderingUtils.ReAllocateIfNeeded(ref m_TextureBack, targetDescriptor, FilterMode.Bilinear, TextureWrapMode.Clamp, name: texName + "Back");
+            RenderingUtils.ReAllocateHandleIfNeeded(ref m_TextureFront, targetDescriptor, FilterMode.Bilinear, TextureWrapMode.Clamp, name: texName + "Front");
+            RenderingUtils.ReAllocateHandleIfNeeded(ref m_TextureBack, targetDescriptor, FilterMode.Bilinear, TextureWrapMode.Clamp, name: texName + "Back");
             // Create the texture handles inside render graph by importing the RTHandles in render graph.
             m_TextureHandleFront = renderGraph.ImportTexture(m_TextureFront);
             m_TextureHandleBack = renderGraph.ImportTexture(m_TextureBack);
@@ -182,11 +186,14 @@ public class BlitRendererFeature : ScriptableRendererFeature
         // It is static to avoid using member variables which could cause unintended behaviour.
         static void ExecutePass(PassData data, RasterGraphContext rgContext)
         {
-            // We can use blit with or without a material both using the static scaleBias to avoid reallocations.
-            if (data.material == null)
-                Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, 0, false);
-            else
-                Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, data.material, 0);
+         
+                // We can use blit with or without a material both using the static scaleBias to avoid reallocations.
+                if (data.material == null)
+                    Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, 0, false);
+                else
+                    Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, data.material, 0);
+             
+         
         }
 
         // We need to release the textures once the renderer is released which will dispose every item inside
