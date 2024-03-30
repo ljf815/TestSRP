@@ -1,16 +1,16 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
+//[ExecuteInEditMode]
 public class Test1 : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-      
+      Test();
     }
 
     // Update is called once per frame
-    void Update()
+    void Test()
     {
        var m= Camera.main.projectionMatrix;
     //   print(m);
@@ -30,7 +30,7 @@ public class Test1 : MonoBehaviour
        var trans = new Matrix4x4(
            new Vector4(1, 0, 0, -(r + l) / 2),
            new Vector4(0, 1, 0, -(t + b) / 2),
-           new Vector4(0,0,1,(f+n)/2),
+           new Vector4(0,0,1,-(f+n)/2),
            new Vector4(0,0,0,1)).transpose;
 
        var scale = new Matrix4x4(
@@ -41,10 +41,12 @@ public class Test1 : MonoBehaviour
        ).transpose;
        
 
-       var proj =reflect* scale* trans;
+       var proj =  scale* trans*reflect;
        print(m);
        print(proj);
+     //  print(cam.worldToCameraMatrix);
       var m2= GL.GetGPUProjectionMatrix(m, false);
+      print(m2);
     //  print(m2);
     }
 }

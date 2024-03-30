@@ -1,3 +1,6 @@
 *.sln
 .idea/.idea.TestSRP/.idea
 UserSettings
+.utmp
+lib_burst_generated.txt
+*.apk
