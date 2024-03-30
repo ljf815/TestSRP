@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 //[ExecuteInEditMode]
@@ -7,6 +8,11 @@ public class Test1 : MonoBehaviour
     void Start()
     {
       Test();
+    }
+
+    private void Update()
+    {
+      //  print("update");
     }
 
     // Update is called once per frame
@@ -44,7 +50,7 @@ public class Test1 : MonoBehaviour
        var proj =  scale* trans*reflect;
        print(m);
        print(proj);
-     //  print(cam.worldToCameraMatrix);
+       print(cam.worldToCameraMatrix);
       var m2= GL.GetGPUProjectionMatrix(m, false);
       print(m2);
     //  print(m2);
