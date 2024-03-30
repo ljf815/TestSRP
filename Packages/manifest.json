@@ -2,7 +2,7 @@
   "dependencies": {
     "com.unity.ai.navigation": "2.0.0",
     "com.unity.ide.rider": "3.0.28",
-    "com.unity.inputsystem": "1.7.0",
+    "com.unity.inputsystem": "1.8.1",
     "com.unity.render-pipelines.universal": "file:../LocalPackage/com.unity.render-pipelines.universal",
     "com.unity.render-pipelines.universal-config": "file:../LocalPackage/com.unity.render-pipelines.universal-config",
     "com.unity.test-framework": "1.4.3",
