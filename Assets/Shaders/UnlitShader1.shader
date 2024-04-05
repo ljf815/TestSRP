@@ -41,6 +41,7 @@ Shader "Example/URPUnlitShaderBasic"
                 // The positions in this struct must have the SV_POSITION semantic.
                 float4 positionHCS  : SV_POSITION;
                 float3 positionVS :TEXCOORD0;
+                
             };
 
             // The vertex shader definition with properties defined in the Varyings
@@ -65,8 +66,11 @@ Shader "Example/URPUnlitShaderBasic"
             half4 frag(Varyings input) : SV_Target
             {
                 // Defining the color variable and returning it.
-                half4 customColor = half4(0.5, 0, 0, 1);
-                return input.positionVS.z;
+                half4 customColor = half4(1, 0, 0, 1);
+                int x= input.positionHCS.x *input.positionHCS.y;
+               
+            clip(0.5-  (x%2==0?1:0));
+                return customColor;
             }
             ENDHLSL
         }
