@@ -7,7 +7,8 @@ Shader "Unlit/TexUnlit"
         _Color("Color", Color ) = (1.0,1.0,1.0,1.0)
         _Ratio("Ratio" ,Range(0,1)) = 0.1
         _Tile("Tile",Float)=1
-      
+        _Polynomial("Polynomial",Vector)=(0,1,0,0)
+        
     }
 
        SubShader
@@ -54,6 +55,7 @@ Shader "Unlit/TexUnlit"
                 float _Ratio;
                 float _Tile;
                 half4 _Color;
+                half4 _Polynomial;
                 float4 _BaseMap_ST;
             CBUFFER_END
 
@@ -77,8 +79,13 @@ Shader "Unlit/TexUnlit"
                 // The SAMPLE_TEXTURE2D marco samples the texture with the given
                 // sampler.
               //  half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+                
                 float v=input.uv.y*_Tile;
+                float vpow2=v*v;
+                v=_Polynomial.x+_Polynomial.y*v+_Polynomial.z*v*v+_Polynomial.w*v*v*v;
+                
                 float dv=ddy(v);
+                float invDv=1/dv;
                 float v2=v+dv;
                 float fl1=floor(v);
                 float fl2=floor(v2);
@@ -87,12 +94,15 @@ Shader "Unlit/TexUnlit"
 
                 float p1=_Ratio- min(fr1,_Ratio);
                 float p2= min(fr2,_Ratio);
-                float total=(fl2-fl1+1)*_Ratio-p1-p2;
-                total/=dv;
+               
                 
                 
                 half4 color= _Color;
-               color.a=saturate(total);
+             //  color.a=(fl2-fl1)*invDv;
+             //  color.a= (fl2-fl1)*_Ratio*invDv;//+ (GetRatio(fr2)- GetRatio(fr1))*invDv;//*0.5;// min(fr2,_Ratio);//-min(fr1,_Ratio);
+              //  color.a=saturate(color.a);
+             //   color.a*= ((fl2-fl1+1)*_Ratio-(GetRatio(fr1)+_Ratio-GetRatio(fr2)))/(fl2-fl1+1);
+                color.a*=( GetRatio(fr2)+(fl2-fl1)*_Ratio+ -GetRatio(fr1))*invDv;
                
                 return color;
             }
