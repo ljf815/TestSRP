@@ -29,11 +29,11 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Ratio: 2
-    - _Tile: 1
+    - _Ratio: 1.18
+    - _Tile: 10.19
     m_Colors:
-    - _Color: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 0.45490196}
+    - _Color: {r: 0.9811321, g: 0.9811321, b: 0.9811321, a: 0.3764706}
     - _ExampleName: {r: 0.24999997, g: 0.5, b: 0.5, a: 1}
-    - _Polynomial: {r: 0, g: 1, b: 66.8, a: 0}
+    - _Polynomial: {r: -1.46, g: 1.38, b: 0, a: 0.03}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

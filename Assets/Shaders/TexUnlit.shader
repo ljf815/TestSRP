@@ -81,13 +81,14 @@ Shader "Unlit/TexUnlit"
               //  half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
                 float t=input.uv.y;
                 float v=t*_Tile;
-               
+               float cv=ddy(v);
+                v-=cv*0.5;
               //  v=_Polynomial.x+v;
-                v=_Polynomial.y*v+_Polynomial.z*v*v+_Polynomial.w*v*v*v;
+                v=_Polynomial.x+ _Polynomial.y*v+_Polynomial.z*v*v+_Polynomial.w*v*v*v;
                 
                 float dv=ddy(v);
                  float ratio=min(1,_Ratio*dv);
-         
+       
                 float invDv=1/dv;
                 float v2=v+dv;
                 float fl1=floor(v);
@@ -103,7 +104,8 @@ Shader "Unlit/TexUnlit"
               //  color.a=saturate(color.a);
              //   color.a*= ((fl2-fl1+1)*_Ratio-(GetRatio(fr1)+_Ratio-GetRatio(fr2)))/(fl2-fl1+1);
                 color.a*=( min(fr2,ratio)+(fl2-fl1)*ratio+ -min(fr1,ratio))*invDv;
-               
+            //   color.a=pow(color.a,0.454545);
+            //    color.a=pow(color.a,2.2);
                 return color;
             }
             ENDHLSL
