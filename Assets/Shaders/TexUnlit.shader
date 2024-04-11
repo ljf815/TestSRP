@@ -81,13 +81,14 @@ Shader "Unlit/TexUnlit"
               //  half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
                 float t=input.uv.y;
                 float v=t*_Tile;
+                
                float cv=ddy(v);
                 v-=cv*0.5;
               //  v=_Polynomial.x+v;
                 v=_Polynomial.x+ _Polynomial.y*v+_Polynomial.z*v*v+_Polynomial.w*v*v*v;
                 
                 float dv=ddy(v);
-                 float ratio=min(1,_Ratio*dv);
+                 float ratio=min(1,_Ratio*dv/cv);
        
                 float invDv=1/dv;
                 float v2=v+dv;
