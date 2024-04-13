@@ -5,10 +5,6 @@ using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-enum MyProfile
-{
-    BlitRendererFeature
-}
 // Example of how Blit operatrions can be handled using frameData using multiple ScriptaleRenderPasses.
 public class BlitRendererFeature : ScriptableRendererFeature
 {
@@ -186,14 +182,11 @@ public class BlitRendererFeature : ScriptableRendererFeature
         // It is static to avoid using member variables which could cause unintended behaviour.
         static void ExecutePass(PassData data, RasterGraphContext rgContext)
         {
-         
-                // We can use blit with or without a material both using the static scaleBias to avoid reallocations.
-                if (data.material == null)
-                    Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, 0, false);
-                else
-                    Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, data.material, 0);
-             
-         
+            // We can use blit with or without a material both using the static scaleBias to avoid reallocations.
+            if (data.material == null)
+                Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, 0, false);
+            else
+                Blitter.BlitTexture(rgContext.cmd, data.source, scaleBias, data.material, 0);
         }
 
         // We need to release the textures once the renderer is released which will dispose every item inside
