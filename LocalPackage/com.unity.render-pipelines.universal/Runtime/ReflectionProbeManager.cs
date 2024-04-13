@@ -83,7 +83,7 @@ namespace UnityEngine.Rendering.Universal
             m_AtlasTexture0.filterMode = FilterMode.Bilinear;
             m_AtlasTexture0.hideFlags = HideFlags.HideAndDontSave;
             m_AtlasTexture0.Create();
-            m_AtlasTexture0Handle = RTHandles.Alloc(m_AtlasTexture0);
+            m_AtlasTexture0Handle = RTHandles.Alloc(m_AtlasTexture0, transferOwnership: true);
 
             m_AtlasTexture1 = new RenderTexture(m_AtlasTexture0.descriptor);
             m_AtlasTexture1.name = k_ReflectionProbeAtlasName;
@@ -207,6 +207,7 @@ namespace UnityEngine.Rendering.Universal
 #if UNITY_EDITOR
                 needsUpdate |= cachedProbe.imageContentsHash != texture.imageContentsHash;
 #endif
+                needsUpdate |= cachedProbe.hdrData != probe.hdrData;    // The probe needs update if the runtime intensity multiplier changes
 
                 if (needsUpdate)
                 {

@@ -24,30 +24,44 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         public const string k_ShaderTagName = "UniversalPipeline";
 
-        internal static class Profiling
+        // Cache camera data to avoid per-frame allocations.
+        internal static class CameraMetadataCache
         {
-            private static Dictionary<int, ProfilingSampler> s_HashSamplerCache = new Dictionary<int, ProfilingSampler>();
-            public static readonly ProfilingSampler unknownSampler = new ProfilingSampler("Unknown");
-
-            // Specialization for camera loop to avoid allocations.
-            public static ProfilingSampler TryGetOrAddCameraSampler(Camera camera)
+            public class CameraMetadataCacheEntry
             {
-#if UNIVERSAL_PROFILING_NO_ALLOC
-                return unknownSampler;
-#else
-                ProfilingSampler ps = null;
-                int cameraId = camera.GetHashCode();
-                bool exists = s_HashSamplerCache.TryGetValue(cameraId, out ps);
-                if (!exists)
-                {
-                    // NOTE: camera.name allocates!
-                    ps = new ProfilingSampler($"{nameof(UniversalRenderPipeline)}.{nameof(RenderSingleCameraInternal)}: {camera.name}");
-                    s_HashSamplerCache.Add(cameraId, ps);
-                }
-                return ps;
-#endif
+                public string name;
+                public ProfilingSampler sampler;
             }
 
+            static Dictionary<int, CameraMetadataCacheEntry> s_MetadataCache = new();
+
+            static readonly CameraMetadataCacheEntry k_NoAllocEntry = new() { name = "Unknown", sampler = new ProfilingSampler("Unknown") };
+
+            public static CameraMetadataCacheEntry GetCached(Camera camera)
+            {
+#if UNIVERSAL_PROFILING_NO_ALLOC
+                return k_NoAllocEntry;
+#else
+                int cameraId = camera.GetHashCode();
+                if (!s_MetadataCache.TryGetValue(cameraId, out CameraMetadataCacheEntry result))
+                {
+                    string cameraName = camera.name; // Warning: camera.name allocates
+                    result = new CameraMetadataCacheEntry
+                    {
+                        name = cameraName,
+                        sampler = new ProfilingSampler(
+                            $"{nameof(UniversalRenderPipeline)}.{nameof(RenderSingleCameraInternal)}: {cameraName}")
+                    };
+                    s_MetadataCache.Add(cameraId, result);
+                }
+
+                return result;
+#endif
+            }
+        }
+
+        internal static class Profiling
+        {
             public static class Pipeline
             {
                 // TODO: Would be better to add Profiling name hooks into RenderPipeline.cs, requires changes outside of Universal.
@@ -698,8 +712,8 @@ namespace UnityEngine.Rendering.Universal
             // Until then, we can't use nested profiling scopes with XR multipass
             CommandBuffer cmdScope = cameraData.xr.enabled ? null : cmd;
 
-            ProfilingSampler sampler = Profiling.TryGetOrAddCameraSampler(camera);
-            using (new ProfilingScope(cmdScope, sampler)) // Enqueues a "BeginSample" command into the CommandBuffer cmd
+            var cameraMetadata = CameraMetadataCache.GetCached(camera);
+            using (new ProfilingScope(cmdScope, cameraMetadata.sampler)) // Enqueues a "BeginSample" command into the CommandBuffer cmd
             {
                 renderer.Clear(cameraData.renderType);
 
@@ -757,7 +771,7 @@ namespace UnityEngine.Rendering.Universal
                 // Update TAA persistent data based on cameraData. Most importantly resize the history render targets.
                 // NOTE: Persistent data is kept over multiple frames. Its life-time differs from typical resources.
                 // NOTE: Shared between both Execute and Render (RG) paths.
-                if (cameraData.taaPersistentData != null)
+                if (cameraData.taaHistory != null)
                     UpdateTemporalAATargets(cameraData);
 
                 RTHandles.SetReferenceSize(cameraData.cameraTargetDescriptor.width, cameraData.cameraTargetDescriptor.height);
@@ -798,7 +812,7 @@ namespace UnityEngine.Rendering.Universal
 
                 if (useRenderGraph)
                 {
-                    RecordAndExecuteRenderGraph(s_RenderGraph, context, renderer, cmd, cameraData.camera);
+                    RecordAndExecuteRenderGraph(s_RenderGraph, context, renderer, cmd, cameraData.camera, cameraMetadata.name);
                     renderer.FinishRenderGraphRendering(cmd);
                 }
                 else
@@ -1393,7 +1407,7 @@ namespace UnityEngine.Rendering.Universal
             bool canSkipFrontToBackSorting = (baseCamera.opaqueSortMode == OpaqueSortMode.Default && hasHSRGPU) || baseCamera.opaqueSortMode == OpaqueSortMode.NoDistanceSort;
 
             cameraData.defaultOpaqueSortFlags = canSkipFrontToBackSorting ? noFrontToBackOpaqueFlags : commonOpaqueFlags;
-            cameraData.captureActions = CameraCaptureBridge.GetCaptureActions(baseCamera);
+            cameraData.captureActions = Unity.RenderPipelines.Core.Runtime.Shared.CameraCaptureBridge.GetCachedCaptureActionsEnumerator(baseCamera);
         }
 
         /// <summary>
@@ -1761,15 +1775,15 @@ namespace UnityEngine.Rendering.Universal
             switch (renderingSettings.taaDebugMode)
             {
                 case DebugDisplaySettingsRendering.TaaDebugMode.ShowClampedHistory:
-                    taaSettings.frameInfluence = 0;
+                    taaSettings.m_FrameInfluence = 0;
                     break;
 
                 case DebugDisplaySettingsRendering.TaaDebugMode.ShowRawFrame:
-                    taaSettings.frameInfluence = 1;
+                    taaSettings.m_FrameInfluence = 1;
                     break;
 
                 case DebugDisplaySettingsRendering.TaaDebugMode.ShowRawFrameNoJitter:
-                    taaSettings.frameInfluence = 1;
+                    taaSettings.m_FrameInfluence = 1;
                     taaSettings.jitterScale = 0;
                     break;
             }
@@ -1778,8 +1792,8 @@ namespace UnityEngine.Rendering.Universal
         private static void UpdateTemporalAAData(UniversalCameraData cameraData, UniversalAdditionalCameraData additionalCameraData)
         {
             // Always request the TAA history data here in order to fit the existing URP structure.
-            additionalCameraData.historyManager.RequestAccess<TemporalAA.PersistentData>();
-            cameraData.taaPersistentData = additionalCameraData.historyManager.GetHistoryForWrite<TemporalAA.PersistentData>();
+            additionalCameraData.historyManager.RequestAccess<TaaHistory>();
+            cameraData.taaHistory = additionalCameraData.historyManager.GetHistoryForWrite<TaaHistory>();
 
             if (cameraData.IsSTPEnabled())
             {
@@ -1809,13 +1823,13 @@ namespace UnityEngine.Rendering.Universal
                     Debug.Assert(cameraData.stpHistory != null);
 
                     // When STP is active, we don't require the full set of resources needed by TAA.
-                    cameraData.taaPersistentData.Reset();
+                    cameraData.taaHistory.Reset();
 
                     allocation = cameraData.stpHistory.Update(cameraData);
                 }
                 else
                 {
-                    allocation = cameraData.taaPersistentData.Update(ref cameraData.cameraTargetDescriptor, xrMultipassEnabled);
+                    allocation = cameraData.taaHistory.Update(ref cameraData.cameraTargetDescriptor, xrMultipassEnabled);
                 }
 
                 // Fill new history with current frame
@@ -1825,7 +1839,7 @@ namespace UnityEngine.Rendering.Universal
             }
             else
             {
-                cameraData.taaPersistentData.Reset();   // TAA GPUResources is explicitly released if the feature is turned off. We could refactor this to rely on the type request and the "gc" only.
+                cameraData.taaHistory.Reset();   // TAA GPUResources is explicitly released if the feature is turned off. We could refactor this to rely on the type request and the "gc" only.
 
                 // In the case where STP is enabled, but TAA gets disabled for various reasons, we should release the STP history resources
                 if (cameraData.IsSTPEnabled())

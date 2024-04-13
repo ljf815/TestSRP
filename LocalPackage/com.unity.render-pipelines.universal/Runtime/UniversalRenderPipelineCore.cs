@@ -589,7 +589,7 @@ namespace UnityEngine.Rendering.Universal
         /// <summary>
         /// Persistent TAA data, primarily for the accumulation texture.
         /// </summary>
-        internal ref TemporalAA.PersistentData taaPersistentData => ref frameData.Get<UniversalCameraData>().taaPersistentData;
+        internal ref TaaHistory taaHistory => ref frameData.Get<UniversalCameraData>().taaHistory;
 
         // TAA settings.
         internal ref TemporalAA.Settings taaSettings => ref frameData.Get<UniversalCameraData>().taaSettings;
@@ -848,6 +848,10 @@ namespace UnityEngine.Rendering.Universal
         public static readonly int inverseCameraProjectionMatrix = Shader.PropertyToID("unity_CameraInvProjection");
         public static readonly int worldToCameraMatrix = Shader.PropertyToID("unity_WorldToCamera");
         public static readonly int cameraToWorldMatrix = Shader.PropertyToID("unity_CameraToWorld");
+
+        public static readonly int shadowBias = Shader.PropertyToID("_ShadowBias");
+        public static readonly int lightDirection = Shader.PropertyToID("_LightDirection");
+        public static readonly int lightPosition = Shader.PropertyToID("_LightPosition");
 
         public static readonly int cameraWorldClipPlanes = Shader.PropertyToID("unity_CameraWorldClipPlanes");
 

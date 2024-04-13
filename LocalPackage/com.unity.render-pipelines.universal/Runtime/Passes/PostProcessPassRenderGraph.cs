@@ -625,6 +625,7 @@ namespace UnityEngine.Rendering.Universal
                 passData.sourceTexture = source;
                 builder.UseTexture(source, AccessFlags.Read);
                 passData.depthTexture = resourceData.cameraDepthTexture;
+                builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
                 passData.material = m_Materials.gaussianDepthOfFieldCoC;
 
                 UniversalRenderer renderer = cameraData.renderer as UniversalRenderer;
@@ -843,6 +844,7 @@ namespace UnityEngine.Rendering.Universal
                 passData.sourceTexture = source;
                 builder.UseTexture(source, AccessFlags.Read);
                 passData.depthTexture = resourceData.cameraDepthTexture;
+                builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
                 passData.material = m_Materials.bokehDepthOfFieldCoC;
 
                 UniversalRenderer renderer = cameraData.renderer as UniversalRenderer;
@@ -1279,7 +1281,10 @@ namespace UnityEngine.Rendering.Universal
                 passData.material = m_Materials.lensFlareDataDriven;
                 passData.width = (float)m_Descriptor.width;
                 passData.height = (float)m_Descriptor.height;
-                passData.viewport = cameraData.pixelRect;
+                passData.viewport.x = 0.0f;
+                passData.viewport.y = 0.0f;
+                passData.viewport.width = (float)m_Descriptor.width;
+                passData.viewport.height = (float)m_Descriptor.height;
                 if (m_PaniniProjection.IsActive())
                 {
                     passData.usePanini = true;

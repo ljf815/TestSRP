@@ -286,31 +286,10 @@ namespace UnityEditor.Rendering.Universal
                 }
             }
 
-            var rendererList = UniversalRenderPipeline.asset.rendererDataList;
-            bool hasNonForwardPlusRenderer = false;
-            foreach (var r in rendererList)
-            {
-                if (r is UniversalRendererData ur)
-                {
-                    if (ur.renderingMode != RenderingMode.ForwardPlus)
-                    {
-                        hasNonForwardPlusRenderer = true;
-                        break;
-                    }
-                }
-                else
-                {
-                    hasNonForwardPlusRenderer = true;
-                    break;
-                }
-            }
-
-            GUI.enabled = hasNonForwardPlusRenderer;
-            EditorGUILayout.PropertyField(serializedLight.settings.cullingMask, hasNonForwardPlusRenderer ? Styles.CullingMask : Styles.CullingMaskDisabled);
-            GUI.enabled = true;
+            EditorGUILayout.PropertyField(serializedLight.settings.cullingMask, Styles.CullingMask);
             if (serializedLight.settings.cullingMask.intValue != -1)
             {
-                EditorGUILayout.HelpBox(Styles.CullingMaskWarning.text, MessageType.Warning);
+                EditorGUILayout.HelpBox(Styles.CullingMaskWarning.text, MessageType.Info);
             }
         }
 
@@ -495,7 +474,7 @@ namespace UnityEditor.Rendering.Universal
                     }
                     else
                     {
-                        if (GraphicsSettings.renderPipelineAsset is UniversalRenderPipelineAsset urpAsset)
+                        if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urpAsset)
                             EditorGUILayout.LabelField($"{urpAsset.GetAdditionalLightsShadowResolution(shadowResolutionTier)} ({urpAsset.name})", GUILayout.ExpandWidth(false));
                     }
                     if (checkScope.changed)
