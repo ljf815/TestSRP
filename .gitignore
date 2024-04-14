@@ -4,3 +4,4 @@ UserSettings
 .utmp
 lib_burst_generated.txt
 *.apk
+*.yaml
