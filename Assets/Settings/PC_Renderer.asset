@@ -16,7 +16,7 @@ MonoBehaviour:
   ShadowLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  ShadowRenderPassEvent: 50
+  ShadowRenderPassEvent: 100
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
