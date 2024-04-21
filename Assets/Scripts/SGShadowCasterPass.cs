@@ -47,7 +47,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
 
     static void Execute(PassData data, RasterGraphContext rgContext)
     {
-    //    using (new ProfilingScope(rgContext.cmd,m_ExcuteSampler))
+        using (new ProfilingScope(rgContext.cmd,m_ExcuteSampler))
         { 
             rgContext.cmd.ClearRenderTarget(true,false,Color.clear);
             rgContext.cmd.DrawRendererList(data.rendererListHandle);
