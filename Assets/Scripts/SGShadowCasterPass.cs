@@ -89,10 +89,8 @@ public class SGShadowCasterPass : ScriptableRenderPass
         var sortFlags = cameraData.defaultOpaqueSortFlags;
         RenderQueueRange renderQueueRange = RenderQueueRange.opaque;
         FilteringSettings filterSettings = new FilteringSettings(renderQueueRange, m_LayerMask);
-        
-        var shaderTagList = new List<ShaderTagId>{new("ShadowCaster")};
-            
-        DrawingSettings drawSettings = RenderingUtils.CreateDrawingSettings(shaderTagList, renderingData, cameraData, lightData, sortFlags);
+     
+        DrawingSettings drawSettings = RenderingUtils.CreateDrawingSettings(new ShaderTagId("ShadowCaster"), renderingData, cameraData, lightData, sortFlags);
        
        
         var param = new RendererListParams(renderingData.cullResults, drawSettings, filterSettings);
