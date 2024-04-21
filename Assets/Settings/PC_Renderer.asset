@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: SGRenderFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  ShadowLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ShadowRenderPassEvent: 100
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,7 +77,7 @@ MonoBehaviour:
   m_DepthAttachmentFormat: 0
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
-  m_IntermediateTextureMode: 0
+  m_IntermediateTextureMode: 1
 --- !u!114 &2452037881129474377
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1088,7 +1088,7 @@ namespace UnityEngine.Rendering.Universal
             }
 
             DrawingSettings settings = CreateDrawingSettings(shaderTagIdList[0], renderingData, cameraData, lightData, sortingCriteria);
-            for (int i = 1; i < shaderTagIdList.Count; ++i)
+            for (int i = 0; i < shaderTagIdList.Count; ++i)
                 settings.SetShaderPassName(i, shaderTagIdList[i]);
             return settings;
         }
