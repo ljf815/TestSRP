@@ -163,15 +163,16 @@ public class SGShadowCasterPass : ScriptableRenderPass
         if(param.cullingResults.GetShadowCasterBounds(shadowLightIndex, out Bounds bounds)==false)
             return;
         GetViewBounds(bounds,light.transform.forward,out Bounds viewBounds,out Quaternion invRot);
-        var viewMatrix = Matrix4x4.TRS(-bounds.center, invRot, Vector3.one);
+      var viewMatrix= (Matrix4x4)float4x4.TRS(-bounds.center, invRot, new float3(1, 1, 1));
+      //  var viewMatrix = Matrix4x4.TRS(bounds.center, invRot, Vector3.one);
         viewMatrix.m20 *= -1;
         viewMatrix.m21 *= -1;
         viewMatrix.m22 *= -1;
         viewMatrix.m23 *= -1;
         
         var extends = viewBounds.extents;
-        var proj = Matrix4x4.Ortho(-extends.x, extends.x, -extends.y, extends.y, -extends.z, extends.z);
-        proj = GL.GetGPUProjectionMatrix(proj, false);
+        var proj = (Matrix4x4)float4x4.Ortho(2*extends.x, 2*extends.y, -extends.z,extends.z);
+        proj = GL.GetGPUProjectionMatrix(proj, true);
         var vp = proj * viewMatrix;
         DrawBox(bounds.center,quaternion.identity,bounds.extents*2,Color.green);
         DrawBox(bounds.center,math.inverse(invRot),viewBounds.extents*2,Color.blue);
