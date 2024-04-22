@@ -14,7 +14,8 @@ public class SGShadowCasterPass : ScriptableRenderPass
 {
     const int k_ShadowmapBufferBits = 16;
     private static int s_ShadowmapID = Shader.PropertyToID("_SGMAINLIGHTSHADOW");
-     static  int s_unity_MatrixVP =Shader.PropertyToID("UNITY_MATRIX_VP");
+     static  int s_unity_MatrixVP =Shader.PropertyToID("unity_MatrixVP");
+ //    public static readonly int viewAndProjectionMatrix = Shader.PropertyToID("unity_MatrixVP");
     ProfilingSampler m_BuildSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+":Build");
    static ProfilingSampler m_ExcuteSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+"Execute");
     private static bool  m_ForceShadowPointSampling;
@@ -46,16 +47,16 @@ public class SGShadowCasterPass : ScriptableRenderPass
         base.profilingSampler = new ProfilingSampler(nameof(SGShadowCasterPass));
         m_ForceShadowPointSampling = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal &&
                                      GraphicsSettings.HasShaderDefine(Graphics.activeTier, BuiltinShaderDefine.UNITY_METAL_SHADOWS_USE_POINT_FILTERING);
-    
+      
     }
 
     static void Execute(PassData data, RasterGraphContext rgContext)
     {
         using (new ProfilingScope(rgContext.cmd,m_ExcuteSampler))
         { 
-             Debug.Log(s_unity_MatrixVP+"  "+data.vpMatrix4X4);
-            rgContext.cmd.SetGlobalMatrix(s_unity_MatrixVP,data.vpMatrix4X4);
+//             Debug.Log(s_unity_MatrixVP+"  "+data.vpMatrix4X4);
             rgContext.cmd.ClearRenderTarget(true,false,Color.clear);
+            rgContext.cmd.SetGlobalMatrix(s_unity_MatrixVP,data.vpMatrix4X4);
             rgContext.cmd.DrawRendererList(data.rendererListHandle);
         }
     }
@@ -159,7 +160,8 @@ public class SGShadowCasterPass : ScriptableRenderPass
         DrawingSettings drawSettings = RenderingUtils.CreateDrawingSettings(new ShaderTagId("ShadowCaster"), renderingData, cameraData, lightData, sortFlags);
         
         var param = new RendererListParams(renderingData.cullResults, drawSettings, filterSettings);
-        param.cullingResults.GetShadowCasterBounds(shadowLightIndex, out Bounds bounds);
+        if(param.cullingResults.GetShadowCasterBounds(shadowLightIndex, out Bounds bounds)==false)
+            return;
         GetViewBounds(bounds,light.transform.forward,out Bounds viewBounds,out Quaternion invRot);
         var viewMatrix = Matrix4x4.TRS(-bounds.center, invRot, Vector3.one);
         viewMatrix.m20 *= -1;

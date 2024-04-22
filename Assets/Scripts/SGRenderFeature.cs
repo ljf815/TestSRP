@@ -9,7 +9,6 @@ public class SGRenderFeature : ScriptableRendererFeature
     
     public override void Create()
     {
-       Debug.Log("create pass");
         m_ShadowCasterPass = new SGShadowCasterPass(ShadowLayerMask);
         m_ShadowCasterPass.renderPassEvent = ShadowRenderPassEvent;
     }
