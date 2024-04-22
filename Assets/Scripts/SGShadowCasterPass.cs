@@ -162,18 +162,21 @@ public class SGShadowCasterPass : ScriptableRenderPass
         var param = new RendererListParams(renderingData.cullResults, drawSettings, filterSettings);
         if(param.cullingResults.GetShadowCasterBounds(shadowLightIndex, out Bounds bounds)==false)
             return;
+
         GetViewBounds(bounds,light.transform.forward,out Bounds viewBounds,out Quaternion invRot);
-      var viewMatrix= (Matrix4x4)float4x4.TRS(-bounds.center, invRot, new float3(1, 1, 1));
+     
+        var viewMatrix =math.mul( math.float4x4(invRot,float3.zero) ,float4x4.Translate(-bounds.center));
+        var reflect = float4x4.identity;
+        reflect.c2.z = -1;
+        viewMatrix = math.mul(reflect, viewMatrix);
       //  var viewMatrix = Matrix4x4.TRS(bounds.center, invRot, Vector3.one);
-        viewMatrix.m20 *= -1;
-        viewMatrix.m21 *= -1;
-        viewMatrix.m22 *= -1;
-        viewMatrix.m23 *= -1;
+     
         
         var extends = viewBounds.extents;
-        var proj = (Matrix4x4)float4x4.Ortho(2*extends.x, 2*extends.y, -extends.z,extends.z);
+        var proj = float4x4.Ortho(2*extends.x, 2*extends.y, extends.z,-extends.z);
+        proj = math.mul(proj, reflect);
         proj = GL.GetGPUProjectionMatrix(proj, true);
-        var vp = proj * viewMatrix;
+        var vp =math.mul( proj ,viewMatrix);
         DrawBox(bounds.center,quaternion.identity,bounds.extents*2,Color.green);
         DrawBox(bounds.center,math.inverse(invRot),viewBounds.extents*2,Color.blue);
         
