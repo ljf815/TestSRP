@@ -2,13 +2,13 @@ using System;
 using UnityEngine;
 
 //[ExecuteInEditMode]
-public class Test1 : MonoBehaviour
+public class TestTransform : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-      //Test();
-      TestPespective();
+      Test();
+    //  TestPespective();
     }
 
     private void Update()
@@ -18,29 +18,27 @@ public class Test1 : MonoBehaviour
 
     void TestPespective()
     {
-        var m= Camera.main.projectionMatrix;
+       
         //   print(m);
         var cam = Camera.main;
         var fov = cam.fieldOfView;
         var tangent = Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
-        var n = cam.nearClipPlane;
-        var f = cam.farClipPlane;
-        var t = n*tangent;
-        var b = -t;
-        var l = -cam.aspect * t;
+        var n = -cam.nearClipPlane;
+        var f = -cam.farClipPlane;
+        var t = -n*tangent;
+        var b = t;
+        var l = cam.aspect * t;
         var r = -l;
 
         var invf = 1 / f;
         var invn = 1 / n;
      
         var reflect = Matrix4x4.identity;
-        reflect.m22 = -1;
-        
-        
+       // reflect.m22 = -1;
 
         var trans = new Matrix4x4(
-            new Vector4(n, 0, 0, 0),
-            new Vector4(0, n, 0,0),
+            new Vector4(-n, 0, 0, 0),
+            new Vector4(0, -n, 0,0),
             new Vector4(0,0,0,1),
             new Vector4(0,0,1,0)).transpose;
         
@@ -58,12 +56,13 @@ public class Test1 : MonoBehaviour
             new Vector4(0,0,-0.5f,0.5f),
             new Vector4(0,0,0,1)
         ).transpose;
-        
-        var proj =  scale* trans*reflect;
-        print(m);
+        print("reverseZ"+SystemInfo.usesReversedZBuffer);
+        var proj = reflect* scale* trans;
+        var m = cam.projectionMatrix;
+        print("proj1"+cam.projectionMatrix);
        
-        print(proj);
-        print(dx*m);
+        print("proj2"+ Matrix4x4.Perspective(cam.fieldOfView,cam.aspect,cam.nearClipPlane,cam.farClipPlane));
+        //print(dx*m);
         
         print(cam.worldToCameraMatrix);
         var m2= GL.GetGPUProjectionMatrix(m, false);
@@ -81,12 +80,16 @@ public class Test1 : MonoBehaviour
        var b = -size;
        var l = -cam.aspect * size;
        var r = -l;
-       var n = cam.nearClipPlane;
-       var f = cam.farClipPlane;
+       var n =-cam.nearClipPlane;
+       var f =- cam.farClipPlane;
+//       Debug.Log("n"+n+"r"+f);
        
-       print(size);
-       var reflect = Matrix4x4.identity;
-       reflect.m22 = -1;
+//       print(size);
+ 
+       var ortho= Matrix4x4.Ortho(l, r, b, t, cam.nearClipPlane, cam.farClipPlane);
+       Debug.Log(ortho);
+       Debug.Log("reversZ"+SystemInfo.usesReversedZBuffer);
+      
 
        var trans = new Matrix4x4(
            new Vector4(1, 0, 0, -(r + l) / 2),
@@ -102,12 +105,14 @@ public class Test1 : MonoBehaviour
        ).transpose;
        
 
-       var proj =  scale* trans*reflect;
+       var proj =  scale* trans;
        print(m);
        print(proj);
-       print(cam.worldToCameraMatrix);
-      var m2= GL.GetGPUProjectionMatrix(m, false);
-      print(m2);
+     //  print(cam.worldToCameraMatrix);
+      var m2= GL.GetGPUProjectionMatrix(m, true);
+      print("glv"+m2);
+      print("v"+cam.worldToCameraMatrix);
+      print("vp"+m2* cam.worldToCameraMatrix);
     //  print(m2);
     }
 }

@@ -41,7 +41,7 @@ Shader "Example/URPUnlitShaderBasic"
                 // The positions in this struct must have the SV_POSITION semantic.
                 float4 positionHCS  : SV_POSITION;
                 float3 positionVS :TEXCOORD0;
-                
+                float m11:TEXCOORD1;
             };
 
             // The vertex shader definition with properties defined in the Varyings
@@ -56,6 +56,9 @@ Shader "Example/URPUnlitShaderBasic"
                 float3 world=TransformObjectToWorld(IN.positionOS.xyz);
                 float3 view=TransformWorldToView(world);
                 float4 hclip=TransformWViewToHClip(view);
+               float4x4 p= GetViewToHClipMatrix();
+                OUT.m11=p[1][1];
+               // hclip=TransformWorldToHClip(world);
                 OUT.positionHCS = hclip;
                 OUT.positionVS=hclip;
                 // Returning the output.
@@ -69,8 +72,8 @@ Shader "Example/URPUnlitShaderBasic"
                 half4 customColor = half4(1, 0, 0, 1);
                 int x= input.positionHCS.x *input.positionHCS.y;
                
-            clip(0.5-  (x%2==0?1:0));
-                return customColor;
+      //      clip(0.5-  (x%2==0?1:0));
+                return -input.m11;
             }
             ENDHLSL
         }
