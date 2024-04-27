@@ -3,13 +3,14 @@ using UnityEngine.Rendering.Universal;
 
 public class SGRenderFeature : ScriptableRendererFeature
 {
+    public bool DebugDrawBounds;
     public LayerMask ShadowLayerMask;
     public RenderPassEvent ShadowRenderPassEvent;
     private SGShadowCasterPass m_ShadowCasterPass;
     
     public override void Create()
     {
-        m_ShadowCasterPass = new SGShadowCasterPass(ShadowLayerMask);
+        m_ShadowCasterPass = new SGShadowCasterPass(ShadowLayerMask,DebugDrawBounds);
         m_ShadowCasterPass.renderPassEvent = ShadowRenderPassEvent;
     }
 

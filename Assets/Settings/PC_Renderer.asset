@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: SGRenderFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  DebugDrawBounds: 1
   ShadowLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295

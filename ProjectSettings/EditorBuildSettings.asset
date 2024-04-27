@@ -8,8 +8,11 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TransformTest.unity
     guid: 3b5793097d5644d00b78942a518db8bf
+  - enabled: 1
+    path: Assets/Scenes/PlannerShadow.unity
+    guid: 34f32e1df6cd941f1a615218317452da
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

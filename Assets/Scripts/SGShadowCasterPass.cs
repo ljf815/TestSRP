@@ -19,6 +19,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
     ProfilingSampler m_BuildSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+":Build");
    static ProfilingSampler m_ExcuteSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+"Execute");
     private static bool  m_ForceShadowPointSampling;
+    public bool m_DebugDrawBounds;
      LayerMask m_LayerMask;
      class PassData
      {
@@ -41,13 +42,13 @@ public class SGShadowCasterPass : ScriptableRenderPass
         }
     }
 
-    public SGShadowCasterPass(LayerMask layerMask)
+    public SGShadowCasterPass(LayerMask layerMask,bool debugDrawBounds)
     {
         m_LayerMask = layerMask;
         base.profilingSampler = new ProfilingSampler(nameof(SGShadowCasterPass));
         m_ForceShadowPointSampling = SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal &&
                                      GraphicsSettings.HasShaderDefine(Graphics.activeTier, BuiltinShaderDefine.UNITY_METAL_SHADOWS_USE_POINT_FILTERING);
-      
+        m_DebugDrawBounds = debugDrawBounds;
     }
 
     static void Execute(PassData data, RasterGraphContext rgContext)
@@ -65,8 +66,6 @@ public class SGShadowCasterPass : ScriptableRenderPass
     static void GetViewBounds(Bounds bounds,Vector3 lightDirection,out Bounds viewBounds,out Quaternion invRot)
     {
         viewBounds = default;
-     
-        var center = bounds.center;
         var halfExtend = bounds.extents;
         NativeList<float3> points = new NativeList<float3>(8, Allocator.Temp);
         points.Add(new float3(halfExtend.x,halfExtend.y,halfExtend.z));
@@ -169,25 +168,18 @@ public class SGShadowCasterPass : ScriptableRenderPass
         var reflect = float4x4.identity;
         reflect.c2.z = -1;
         viewMatrix = math.mul(reflect, viewMatrix);
-      //  var viewMatrix = Matrix4x4.TRS(bounds.center, invRot, Vector3.one);
-     
-        
+ 
         var extends = viewBounds.extents;
-        var proj = float4x4.Ortho(2*extends.x, 2*extends.y, extends.z,-extends.z);
-        proj = math.mul(proj, reflect);
+        var proj = float4x4.Ortho(2*extends.x, 2*extends.y, -extends.z,extends.z);
+   
         proj = GL.GetGPUProjectionMatrix(proj, true);
         var vp =math.mul( proj ,viewMatrix);
-        DrawBox(bounds.center,quaternion.identity,bounds.extents*2,Color.green);
-        DrawBox(bounds.center,math.inverse(invRot),viewBounds.extents*2,Color.blue);
-        
-      var boundsObj = GameObject.Find("ShadowBounds");
-        if (boundsObj != null)
+        if (m_DebugDrawBounds)
         {
-        //    boundsObj.transform.rotation.SetLookRotation(light.transform.forward,light.transform.up);
-            boundsObj.transform.localPosition = bounds.center;
-            boundsObj.transform.localScale = 2*bounds.extents;
-            boundsObj.transform.rotation=quaternion.identity;
+            DrawBox(bounds.center,quaternion.identity,bounds.extents*2,Color.green);
+            DrawBox(bounds.center,math.inverse(invRot),viewBounds.extents*2,Color.blue);
         }
+
         var projMatrix = Matrix4x4.identity;
         var settings = new ShadowDrawingSettings(renderingData.cullResults, shadowLightIndex);
        
