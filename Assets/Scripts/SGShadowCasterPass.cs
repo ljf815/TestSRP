@@ -15,7 +15,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
     const int k_ShadowmapBufferBits = 16;
     private static int s_ShadowmapID = Shader.PropertyToID("_SGMAINLIGHTSHADOW");
      static  int s_unity_MatrixVP =Shader.PropertyToID("unity_MatrixVP");
- //    public static readonly int viewAndProjectionMatrix = Shader.PropertyToID("unity_MatrixVP");
+     private static int s_ShadowBiasID = Shader.PropertyToID("_ShadowBias");
     ProfilingSampler m_BuildSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+":Build");
    static ProfilingSampler m_ExcuteSampler = new ProfilingSampler(nameof(SGShadowCasterPass)+"Execute");
     private static bool  m_ForceShadowPointSampling;
@@ -23,6 +23,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
      LayerMask m_LayerMask;
      class PassData
      {
+         public Vector4 shadowBias;
          public RendererListHandle rendererListHandle;
          public Matrix4x4 vpMatrix4X4;
      }
@@ -58,6 +59,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
 //             Debug.Log(s_unity_MatrixVP+"  "+data.vpMatrix4X4);
             rgContext.cmd.ClearRenderTarget(true,false,Color.clear);
             rgContext.cmd.SetGlobalMatrix(s_unity_MatrixVP,data.vpMatrix4X4);
+            rgContext.cmd.SetGlobalVector(s_ShadowBiasID,data.shadowBias);
             rgContext.cmd.DrawRendererList(data.rendererListHandle);
         }
     }
@@ -189,7 +191,7 @@ public class SGShadowCasterPass : ScriptableRenderPass
             var targetTexture= renderGraph.ImportTexture(blitData.m_ShadowmapTexture);
            
             passData.rendererListHandle= renderGraph.CreateShadowRendererList(ref settings);
-         //   passData.rendererListHandle = renderGraph.CreateRendererList(param);
+            passData.shadowBias = shadowBias;
             passData.vpMatrix4X4 = vp;
             builder.UseRendererList(passData.rendererListHandle);
             builder.SetRenderAttachmentDepth(targetTexture);
