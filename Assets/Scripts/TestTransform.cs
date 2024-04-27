@@ -7,8 +7,8 @@ public class TestTransform : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-      Test();
-    //  TestPespective();
+   //   Test();
+      TestPespective();
     }
 
     private void Update()
@@ -26,8 +26,8 @@ public class TestTransform : MonoBehaviour
         var n = -cam.nearClipPlane;
         var f = -cam.farClipPlane;
         var t = -n*tangent;
-        var b = t;
-        var l = cam.aspect * t;
+        var b = -t;
+        var l = -cam.aspect * t;
         var r = -l;
 
         var invf = 1 / f;
@@ -39,8 +39,8 @@ public class TestTransform : MonoBehaviour
         var trans = new Matrix4x4(
             new Vector4(-n, 0, 0, 0),
             new Vector4(0, -n, 0,0),
-            new Vector4(0,0,0,1),
-            new Vector4(0,0,1,0)).transpose;
+            new Vector4(0,0,0,-1),
+            new Vector4(0,0,-1,0)).transpose;
         
 
         var scale = new Matrix4x4(
@@ -50,23 +50,19 @@ public class TestTransform : MonoBehaviour
             new Vector4(0,0,0,1)
         ).transpose;
        
-        var dx = new Matrix4x4(
-            new Vector4(1,0,0,0),
-            new Vector4(0,1,0,0),
-            new Vector4(0,0,-0.5f,0.5f),
-            new Vector4(0,0,0,1)
-        ).transpose;
+        
         print("reverseZ"+SystemInfo.usesReversedZBuffer);
+        print("v"+cam.worldToCameraMatrix);
         var proj = reflect* scale* trans;
         var m = cam.projectionMatrix;
-        print("proj1"+cam.projectionMatrix);
+        print("cap"+cam.projectionMatrix);
        
-        print("proj2"+ Matrix4x4.Perspective(cam.fieldOfView,cam.aspect,cam.nearClipPlane,cam.farClipPlane));
-        //print(dx*m);
+        print("map"+ Matrix4x4.Perspective(cam.fieldOfView,cam.aspect,cam.nearClipPlane,cam.farClipPlane));
+        print("proj"+proj);
         
-        print(cam.worldToCameraMatrix);
-        var m2= GL.GetGPUProjectionMatrix(m, false);
-        print(m2);
+     
+        var m2= GL.GetGPUProjectionMatrix(m, true);
+        print("glp"+m2);
     }
 
     // Update is called once per frame
@@ -110,7 +106,7 @@ public class TestTransform : MonoBehaviour
        print(proj);
      //  print(cam.worldToCameraMatrix);
       var m2= GL.GetGPUProjectionMatrix(m, true);
-      print("glv"+m2);
+      print("glp"+m2);
       print("v"+cam.worldToCameraMatrix);
       print("vp"+m2* cam.worldToCameraMatrix);
     //  print(m2);
