@@ -17,9 +17,7 @@ namespace Custom
         
        static int m_MainLightShadowmapID = Shader.PropertyToID("_SGMainLightShadowmapTexture");
        ProfilingSampler m_ProfilingSetupSampler = new ProfilingSampler("Setup SG Main Shadowmap");
-       private const int k_EmptyShadowMapDimensions = 1;
-       private const string k_EmptyShadowMapName = "_SGEmptyLightShadowmapTexture";
-       
+  
        const int k_MaxCascades = 4;
        const int k_ShadowmapBufferBits = 16;
        float m_CascadeBorder;
@@ -78,15 +76,10 @@ namespace Custom
             var blitData = frameData.Create<BlitData>();
 
             if (m_CreateEmptyShadowmap)
-            {
-                ShadowUtils.ShadowRTReAllocateIfNeeded(ref blitData.m_EmptyLightShadowmapTexture, k_EmptyShadowMapDimensions, k_EmptyShadowMapDimensions, k_ShadowmapBufferBits, name: k_EmptyShadowMapName);
-            }
+                ShadowUtils.ShadowRTReAllocateIfNeeded(ref blitData.m_EmptyLightShadowmapTexture, 1, 1, k_ShadowmapBufferBits, name: "_SGEmptyLightShadowmapTexture");
             else
-            {
                 ShadowUtils.ShadowRTReAllocateIfNeeded(ref blitData.m_MainLightShadowmapTexture, renderTargetWidth, renderTargetHeight, k_ShadowmapBufferBits, name: "_SGMainLightShadowmapTexture");
-                // Required for scene view camera(URP renderer not initialized)
-
-            }
+            
         }
         
         
