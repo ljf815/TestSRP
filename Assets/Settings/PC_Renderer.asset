@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54a9b69494f4c48db9f0d838f48ea354, type: 3}
   m_Name: SGRenderFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   DebugDrawBounds: 1
   ShadowLayerMask:
     serializedVersion: 2
