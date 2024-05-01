@@ -71,6 +71,7 @@ namespace Custom
             UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
             UniversalLightData lightData = frameData.Get<UniversalLightData>();
             UniversalShadowData shadowData = frameData.Get<UniversalShadowData>();
+            
             Setup(renderingData, cameraData, lightData, shadowData);
 
             var blitData = frameData.Create<BlitData>();
@@ -79,6 +80,7 @@ namespace Custom
                 ShadowUtils.ShadowRTReAllocateIfNeeded(ref blitData.m_EmptyLightShadowmapTexture, 1, 1, k_ShadowmapBufferBits, name: "_SGEmptyLightShadowmapTexture");
             else
                 ShadowUtils.ShadowRTReAllocateIfNeeded(ref blitData.m_MainLightShadowmapTexture, renderTargetWidth, renderTargetHeight, k_ShadowmapBufferBits, name: "_SGMainLightShadowmapTexture");
+            
             
         }
         
