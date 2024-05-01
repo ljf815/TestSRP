@@ -2,15 +2,19 @@ Shader "Test1"
 {
  
     Properties
-    { }
+    {
+        _Color("Color",Color)=(1,1,1,1)
+        [HideInInspector] _AlphaToMask("__alphaToMask", Float) = 0.0
+    }
  
     SubShader
     {
  
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
-        
+        Tags { "Queue" = "Geometry"   "RenderPipeline" = "UniversalPipeline" "PreviewType" = "Plane" }
+
         Pass
         {
+            AlphaToMask [_AlphaToMask]
             HLSLPROGRAM
 
             #pragma vertex vert
@@ -18,6 +22,9 @@ Shader "Test1"
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+            CBUFFER_START(UnityPerMaterial)
+            half4 _Color;
+            CBUFFER_END
             struct Attributes
             {
                 float4 positionOS   : POSITION;
@@ -39,9 +46,10 @@ Shader "Test1"
 
             half4 frag(Varyings input) : SV_Target
             {
-               return half4(1,0,0,1);
+               return input.positionHCS.y/_ScreenParams.y;
             }
             ENDHLSL
         }
     }
+    
 }
