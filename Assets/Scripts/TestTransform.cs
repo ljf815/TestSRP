@@ -33,8 +33,7 @@ public class TestTransform : MonoBehaviour
         var invf = 1 / f;
         var invn = 1 / n;
      
-        var reflect = Matrix4x4.identity;
-       // reflect.m22 = -1;
+      
 
         var trans = new Matrix4x4(
             new Vector4(-n, 0, 0, 0),
@@ -53,7 +52,7 @@ public class TestTransform : MonoBehaviour
         
         print("reverseZ"+SystemInfo.usesReversedZBuffer);
         print("v"+cam.worldToCameraMatrix);
-        var proj = reflect* scale* trans;
+        var proj =  scale* trans;
         var m = cam.projectionMatrix;
         print("cap"+cam.projectionMatrix);
        
