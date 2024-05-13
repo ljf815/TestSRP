@@ -369,6 +369,7 @@ namespace UnityEngine.Rendering.Universal
         {
             s_ShaderTagValues[0] = ShaderTagId.none;
             s_RenderStateBlocks[0] = rsb;
+           
             NativeArray<ShaderTagId> tagValues = new NativeArray<ShaderTagId>(s_ShaderTagValues, Allocator.Temp);
             NativeArray<RenderStateBlock> stateBlocks = new NativeArray<RenderStateBlock>(s_RenderStateBlocks, Allocator.Temp);
             var param = new RendererListParams(cullResults, ds, fs)
